@@ -8,3 +8,4 @@ canvas.height = 1000;
 //};
 var footBall = new BallSprite('image/ball3.svg', 800, 0, 800, 800, canvas.width / 2 - 400 / 2,  canvas.height / 2 - 400 / 2, 400, 400);
 footBall.draw(footBall, canvas);
+var frw=document
