@@ -18,16 +18,14 @@ class ImageDrawer{
 
   }
 
-  draw(imageDrawer, canvas) {
-    var context = canvas.getContext('2d');
-
+  draw(imageDrawer, context) {
     this.image.onload = function (e) {
       context.drawImage(imageDrawer.image, imageDrawer.coorXOnImage, imageDrawer.coorYOnImage, imageDrawer.heightBallImage, imageDrawer.widthBallImage, imageDrawer.coorXOnCanvas,  imageDrawer.coorYOnCanvas,  imageDrawer.heightOnCanvas, imageDrawer.widthOnCanvas); //chage CoorXtoMoveImage to next Sprite
     };
   }
 
-  clearRet(imageDrawer, canvas) {
-    var context = canvas.getContext('2d');
+  clearRet(imageDrawer, context) {
+
     context.clearRect(0, 0, 1700, 1000);
   }
   ///testing
