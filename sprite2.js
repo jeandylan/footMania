@@ -8,15 +8,34 @@ class Sprite {
     this._animationCoordinates = animationCoordinates;
     this.animationSequence = animationCoordinates;
     this._currentTick = 0;
+    this.gravity = 9.81;
+    this.pixelMovement = 0;
+    this.currentImage;
   }
   getCurrentSpriteFrame() {
   return this._animationCoordinates;
 }
   /*used as a queue to getContinuous animate in order it was Ascending declared first element in array get first frame the when no more element , restart*/
   getContinuousSpriteFrame() {
-    var currentScreen = this.animationSequence.shift();
-    this.animationSequence.push(currentScreen);
-    return currentScreen;
+    this.currentImage = this.animationSequence.shift();
+    this.animationSequence.push(this.currentImage);
+
+  }
+  removeAnimation() {
+    this.animationSequence = [];
+  }
+  stopAnimation() {
+    this.animationSequence = [];
+  }
+  getCurrentImage() {
+    if(this.currentImage == null) {
+    this.currentImage= this.animationSequence[0];
+    }
+    return this.currentImage;
+  }
+
+  setPixelPerMeter(canvasHeight, lenghtNoAnimation, MetersToAnimate) {
+    this.pixelMovement = (canvasHeight - lenghtNoAnimation) / MetersToAnimate;
   }
 }
 
