@@ -7,6 +7,8 @@ class Sprite {
   constructor (animationCoordinates) {
     this._animationCoordinates = animationCoordinates;
     this.animationSequence = animationCoordinates;
+    this.numberOfFrames = animationCoordinates.length-1;
+    this.currentFrameNumber=0;
     this._currentTick = 0;
     this.gravity = 9.81;
     this.pixelMovement = 0;
@@ -16,11 +18,15 @@ class Sprite {
   return this._animationCoordinates;
 }
   /*used as a queue to getContinuous animate in order it was Ascending declared first element in array get first frame the when no more element , restart*/
-  getContinuousSpriteFrame() {
+  loopAllFrames() {
     this.currentImage = this.animationSequence.shift();
     this.animationSequence.push(this.currentImage);
-
   }
+
+ playAllFramesOnce() {
+   this.currentImage = this.animationSequence[this.currentFrameNumber];
+   this.currentFrameNumber += 1;
+ }
   removeAnimation() {
     this.animationSequence = [];
   }
