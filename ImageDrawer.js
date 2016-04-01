@@ -1,37 +1,31 @@
 class ImageDrawer{
-  constructor(imagePath, coorXOnCanavs, coorYOnCanvas, heightOnCanvas, widthOnCanvas) {
-    this.imagePath = imagePath;
-    this.coorXOnCanvas = coorXOnCanavs;
-    this.coorYOnCanvas = coorYOnCanvas;
-    this.heightOnCanvas = heightOnCanvas;
-    this.widthOnCanvas = widthOnCanvas;
-    this.image = new Image();
-    this.image.src = this.imagePath;
+  constructor(img,coorXOnCanavs, coorYOnCanvas, heightOnCanvas, widthOnCanvas) {
+    this._coorXOnCanvas = coorXOnCanavs;
+    this._coorYOnCanvas = coorYOnCanvas;
+    this._heightOnCanvas = heightOnCanvas;
+    this._widthOnCanvas = widthOnCanvas;
+    this._loaded=false;
+    this._image = img;
+
+
   }
 
-  draw(imageDrawer, context, sprite) {
-    context.drawImage(imageDrawer.image, sprite[0], sprite[1], sprite[2], sprite[3], imageDrawer.coorXOnCanvas,  imageDrawer.coorYOnCanvas,  imageDrawer.heightOnCanvas, imageDrawer.widthOnCanvas); //chage CoorXtoM
+  draw(context, sprite) {
+    context.drawImage(this._image, sprite[0], sprite[1], sprite[2], sprite[3], this._coorXOnCanvas,  this._coorYOnCanvas,  this._heightOnCanvas, this._widthOnCanvas); //chage CoorXtoM
+    console.log("drawing Image State " +this._loaded);
   }
 
-  moveDrawer(imageDrawer) {
-    imageDrawer.coorXOnCanvas += 10;
-    imageDrawer.coorYOnCanvas += 10;
+  clearRet(context) {
+    context.clearRect(this._coorXOnCanvas, this._coorYOnCanvas, this._heightOnCanvas, this._widthOnCanvas);
   }
 
-  reduceDrawingSize(imageDrawer) {
-    imageDrawer.heightOnCanvas = imageDrawer.heightOnCanvas *0.85;
-    imageDrawer.widthOnCanvas = imageDrawer.widthOnCanvas * 0.85;
-  }
-
-  clearRet(imageDrawer, context) {
-    context.clearRect(imageDrawer.coorXOnCanvas, imageDrawer.coorYOnCanvas, imageDrawer.heightOnCanvas, imageDrawer.widthOnCanvas);
-  }
-
+/*
   moveDrawerToPoint(imageDrawer, locObject) { //need to reduce ball size for better accuracy
-    context.clearRect(imageDrawer.coorXOnCanvas, imageDrawer.coorYOnCanvas, imageDrawer.heightOnCanvas, imageDrawer.widthOnCanvas);
-    imageDrawer.coorXOnCanvas = locObject.x;
-    imageDrawer.coorYOnCanvas = locObject.y;
+    context.clearRect(imageDrawer._coorXOnCanvas, imageDrawer._coorYOnCanvas, imageDrawer._heightOnCanvas, imageDrawer._widthOnCanvas);
+    imageDrawer._coorXOnCanvas = locObject.x;
+    imageDrawer._coorYOnCanvas = locObject.y;
   }
+  */
   }
 
 

@@ -11,54 +11,68 @@ function windowToCanvas(canvas, x, y) {
   };
 }
 
-var painter = new ImageDrawer('ball3.svg', canvas.width / 2 - 200 / 2,  canvas.height/1.3 - 200 / 2, 200, 200);
-var ball = new Sprite([[0, 0, 800, 800], [800, 0, 800, 800], [1600, 0, 800, 800]]);
-
-var PAGEFLIP_INTERVAL=30;
-function animate(time) {
-  if (ballMovement.continue) {
-  if (time - lastAdvance > PAGEFLIP_INTERVAL) {
-    painter.clearRet(painter, context);
-    ball.getContinuousSpriteFrame();
-    ballMovement.moveToPath();
-    painter.draw(painter, context, ball.getCurrentImage());
-    lastAdvance = time;
+function preloadimages(arr){
+  var newimages=[], loadedimages=0
+  var postaction=function(){}
+  var arr=(typeof arr!="object")? [arr] : arr
+  function imageloadpost(){
+    loadedimages++
+    if (loadedimages==arr.length){
+      postaction(newimages) //call postaction and pass in newimages array as parameter
+    }
   }
-    window.requestNextAnimationFrame(animate);
+  for (var i=0; i<arr.length; i++){
+    newimages[i]=new Image()
+    newimages[i].src=arr[i]
+    newimages[i].onload=function(){
+      imageloadpost()
+    }
+    newimages[i].onerror=function(){
+      imageloadpost()
+    }
+  }
+  return { //return blank object with done() method
+    done:function(f){
+      postaction=f || postaction //remember user defined callback functions to be called when images load
+    }
   }
 }
+preloadimages(['ball3.svg','g.png']).done(function(images){
+  //call back codes, for example:
+  var painterBall = new ImageDrawer(images[0], canvas.width / 2 - 200 / 2,  canvas.height/1.3 - 200 / 2, 200, 200);
+  var painterGoalKeeper=new ImageDrawer(images[1],0,0,300,300);
+  var keeper=new Sprite([[0,0,300,300]]);
+  var ball = new Sprite([[0, 0, 800, 800], [800, 0, 800, 800], [1600, 0, 800, 800]]);
+  painterBall.clearRet(context);
+  painterBall.draw(context, ball.getCurrentImage());
+  painterGoalKeeper.draw(context,keeper.getCurrentImage());
 
-
-
+var PAGEFLIP_INTERVAL=30;
+function animateBall(time) {
+  if (ballMovement.continue) {
+  if (time - lastAdvance > PAGEFLIP_INTERVAL) {
+    painterBall.clearRet(context);
+    ball.getContinuousSpriteFrame();
+    ballMovement.moveToPath();
+    painterBall.draw(context, ball.getCurrentImage());
+    lastAdvance = time;
+  }
+    window.requestNextAnimationFrame(animateBall);
+  }
+}
 
 canvas.addEventListener('mouseup', function (e) {
   var loc = windowToCanvas(canvas, e.clientX, e.clientY);
- // painter.moveDrawerToPoint(painter, loc);
-  ballMovement= new Tragetory(250,{x:painter.coorXOnCanvas, y:painter.coorYOnCanvas}, loc, painter);
+ // painterBall.moveDrawerToPoint(painterBall, loc);
+  ballMovement= new Tragetory(250,{x:painterBall._coorXOnCanvas, y:painterBall._coorYOnCanvas}, loc, painterBall);
   ballRotation=true;
   window.requestAnimationFrame(function() {
     //ballMovement.moveToPath();
-    animate(ballMovement);
+    animateBall(ballMovement);
   });
 });
-
-canvas.addEventListener('mousedown', function (e) {
- //ball.stopAnimation();
-  //painter.draw(painter, context, ball.currentImage);
 });
-window.addEventListener('keydown', function (e) {
-  if (e.keyCode === 13) {
 
-  }
-  if (e.keyCode === 65) {
-    ballRotation=false;
-  }
-});
-far1=canvas.height *0.80;
-far2=canvas.height* 0.6;
-far3=canvas.height *0.40;
-far4=canvas.height*0.2;
-function reduceImageSize(canvas,image){
 
-}
+
 
