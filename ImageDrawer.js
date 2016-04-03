@@ -18,7 +18,9 @@ class ImageDrawer{
   clearRet(context) {
     context.clearRect(this._coorXOnCanvas, this._coorYOnCanvas, this._heightOnCanvas, this._widthOnCanvas);
   }
-
+simpleDraw(context){
+  context.drawImage(this._image, this._coorXOnCanvas, this._coorYOnCanvas);
+}
 /*
   moveDrawerToPoint(imageDrawer, locObject) { //need to reduce ball size for better accuracy
     context.clearRect(imageDrawer._coorXOnCanvas, imageDrawer._coorYOnCanvas, imageDrawer._heightOnCanvas, imageDrawer._widthOnCanvas);
