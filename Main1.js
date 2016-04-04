@@ -121,7 +121,6 @@ canvas.addEventListener('mouseup', function (e) {
       });
     }
   }
-
 });
 
 
