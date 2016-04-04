@@ -54,30 +54,27 @@ preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
   painterGoalKeeper.draw(context,keeperRight.getCurrentImage());
 context.restore();
 var PAGEFLIP_INTERVAL=30;
-function animateBall(time) {
-  if (ballMovement.continue) {
-  if (time - lastAdvance > PAGEFLIP_INTERVAL) {
-    //painterBall.clip(context);
-
-    painterGrass.backgroundclipAndDraw(context,painterBall);
-    ball.loopAllFrames();
-    ballMovement.moveToPath();
-    painterBall.draw(context, ball.getCurrentImage());
-    lastAdvance = time;
+  function animateBall(time) {
+    if (ballMovement.continue) {
+      if (time - lastAdvance > PAGEFLIP_INTERVAL) {
+        painterBall.clearRet(context);
+        ball.loopAllFrames();
+        ballMovement.moveToPath();
+        painterBall.draw(context, ball.getCurrentImage());
+        lastAdvance = time;
+      }
+      window.requestNextAnimationFrame(animateBall);
+    }
   }
-    window.requestNextAnimationFrame(animateBall);
-  }
-}
   PI=1000;
-function moveKeeper(spriteKeeper,ballSprite){
+function moveKeeper(spriteKeeper){
   if (spriteKeeper.currentFrameNumber <= spriteKeeper.numberOfFrames){
       painterGrass.backgroundclipAndDraw(context,painterGoalKeeper);
       spriteKeeper.playAllFramesOnce();
       painterGoalKeeper.draw(context, spriteKeeper.getCurrentImage());
-    painterBall.draw(context,ballSprite.getCurrentImage());
     window.requestAnimationFrame(function() {
       //ballMovement.moveToPath();
-      moveKeeper(spriteKeeper,ballSprite);
+      moveKeeper(spriteKeeper);
     });
   }
   else{
@@ -91,7 +88,7 @@ function moveKeeper(spriteKeeper,ballSprite){
 canvas.addEventListener('mouseup', function (e) {
   var loc = windowToCanvas(canvas, e.clientX, e.clientY);
  // painterBall.moveDrawerToPoint(painterBall, loc);
-  ballMovement= new Tragetory(250,{x:painterBall._coorXOnCanvas, y:painterBall._coorYOnCanvas}, loc, painterBall);
+   ballMovement= new Tragetory(250,{x:painterBall._coorXOnCanvas, y:painterBall._coorYOnCanvas}, loc, painterBall);
   ballRotation=true;
   window.requestAnimationFrame(function() {
     //ballMovement.moveToPath();
@@ -102,13 +99,13 @@ canvas.addEventListener('mouseup', function (e) {
    if (event.keyCode ===38){
      window.requestAnimationFrame(function() {
        //ballMovement.moveToPath();
-       moveKeeper(keeperUp,ball);
+       moveKeeper(keeperUp);
      })
    }
     if (event.keyCode ===40){
       window.requestAnimationFrame(function() {
         //ballMovement.moveToPath();
-        moveKeeper(keeperDown,ball);
+        moveKeeper(keeperDown);
       })
     }
     if (event.keyCode ===37){
@@ -120,7 +117,7 @@ canvas.addEventListener('mouseup', function (e) {
     if (event.keyCode ===39){
       window.requestAnimationFrame(function() {
         //ballMovement.moveToPath();
-        moveKeeper(keeperRight,ball);
+        moveKeeper(keeperRight);
       });
     }
   }
