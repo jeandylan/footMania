@@ -49,15 +49,13 @@ preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
   var keeperDown= new Sprite([[0,0,300,300],[0,555,300,300]]);
   var ball = new Sprite([[0, 0, 800, 800], [800, 0, 800, 800], [1600, 0, 800, 800]]);
   painterGrass.simpleDraw(context);
-  //painterBall.clearRet(context);
   painterBall.draw(context, ball.getCurrentImage());
   painterGoalKeeper.draw(context,keeperRight.getCurrentImage());
-context.restore();
 var PAGEFLIP_INTERVAL=30;
   function animateBall(time) {
     if (ballMovement.continue) {
       if (time - lastAdvance > PAGEFLIP_INTERVAL) {
-        painterBall.clearRet(context);
+        painterGrass.backgroundclipAndDraw(context,painterBall);
         ball.loopAllFrames();
         ballMovement.moveToPath();
         painterBall.draw(context, ball.getCurrentImage());
@@ -66,12 +64,12 @@ var PAGEFLIP_INTERVAL=30;
       window.requestNextAnimationFrame(animateBall);
     }
   }
-  PI=1000;
+
 function moveKeeper(spriteKeeper){
   if (spriteKeeper.currentFrameNumber <= spriteKeeper.numberOfFrames){
-      painterGrass.backgroundclipAndDraw(context,painterGoalKeeper);
-      spriteKeeper.playAllFramesOnce();
-      painterGoalKeeper.draw(context, spriteKeeper.getCurrentImage());
+       spriteKeeper.playAllFramesOnce();
+    painterGrass.backgroundclipAndDraw(context,painterGoalKeeper);
+    painterGoalKeeper.draw(context, spriteKeeper.getCurrentImage());
     window.requestAnimationFrame(function() {
       //ballMovement.moveToPath();
       moveKeeper(spriteKeeper);
