@@ -30,16 +30,11 @@ simpleDraw(context){
     context.clip();
     context.restore();
   }
-  backgroundclipAndDraw(context, spriteToCover){
-    context.save();
-    this._number+=-1;
+  clipRegion(context, spritePainterToClip){
     context.beginPath();
-    context.rect(spriteToCover._coorXOnCanvas, spriteToCover._coorYOnCanvas, spriteToCover._widthOnCanvas, spriteToCover._heightOnCanvas);
+    context.rect(spritePainterToClip._coorXOnCanvas, spritePainterToClip._coorYOnCanvas, spritePainterToClip._widthOnCanvas, spritePainterToClip._heightOnCanvas);
     context.closePath();
     context.clip();
-    context.drawImage(this._image, this._coorXOnCanvas,  this._coorYOnCanvas);
-    context.restore();
-    this._number+=1;
   }
 /*
   moveDrawerToPoint(imageDrawer, locObject) { //need to reduce ball size for better accuracy

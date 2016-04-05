@@ -4,6 +4,17 @@ canvas.width  = 1700;
 canvas.height = 1000;
 var context = canvas.getContext('2d');
 var lastAdvance = 0;
+
+
+
+
+
+
+
+
+
+
+
 function windowToCanvas(canvas, x, y) {
   var bbox = canvas.getBoundingClientRect();
   return { x: x - bbox.left * (canvas.width / bbox.width),
@@ -55,7 +66,10 @@ var PAGEFLIP_INTERVAL=30;
   function animateBall(time) {
     if (ballMovement.continue) {
       if (time - lastAdvance > PAGEFLIP_INTERVAL) {
-        painterGrass.backgroundclipAndDraw(context,painterBall);
+       context.save();
+        painterGrass.clipRegion(context,painterBall);
+        painterGrass.simpleDraw(context);
+        context.restore();
         ball.loopAllFrames();
         ballMovement.moveToPath();
         painterBall.draw(context, ball.getCurrentImage());
@@ -68,7 +82,10 @@ var PAGEFLIP_INTERVAL=30;
 function moveKeeper(spriteKeeper){
   if (spriteKeeper.currentFrameNumber <= spriteKeeper.numberOfFrames){
        spriteKeeper.playAllFramesOnce();
-    painterGrass.backgroundclipAndDraw(context,painterGoalKeeper);
+    context.save();
+    painterGrass.clipRegion(context,painterGoalKeeper);
+    painterGrass.simpleDraw(context);
+    context.restore();
     painterGoalKeeper.draw(context, spriteKeeper.getCurrentImage());
     window.requestAnimationFrame(function() {
       //ballMovement.moveToPath();

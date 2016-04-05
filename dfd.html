@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body bgcolor="aqua">
+<canvas id="canvas" ></canvas>
+</body>
+<script type="application/javascript">
+
+        var canvas = document.getElementById('canvas');
+        context = canvas.getContext('2d');
+        image = new Image();
+        canvas.height=2000;
+        canvas.width=2000;
+        image.src = 'g.png';
+        image.onload = function(e) {
+            context.drawImage(image, 0, 0);
+            console.log("tre");
+        }
+
+</script>
+</html>
