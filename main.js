@@ -162,7 +162,8 @@ var box2d = {
   CollisionDetection: function() { //work with Dynamic obj
     var listener = new Box2D.Dynamics.b2ContactListener;
     listener.BeginContact = function(contact) {
-      //console.log(contact.GetFixtureA().GetBody().GetUserData().name);
+      console.log('collide '+contact.GetFixtureA().GetBody().GetUserData().name);
+      console.log('collide '+contact.GetFixtureB().GetBody().GetUserData().name);
       //alert("collide");
     };
     listener.PostSolve = function(contact) {
