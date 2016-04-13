@@ -9,6 +9,7 @@ var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 var b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
 var b2jointWldDef = Box2D.Dynamics.Joints.b2WeldJointDef;
+var context=document.getElementById('canvas').getContext('2d');
 var joint1 = Box2D.Dynamics.Joints.b2WeldJoint;
 var stopAt={x:0,y:0};
 var execute=true;
@@ -33,19 +34,7 @@ var box2d = {
     debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
     box2d.world.SetDebugDraw(debugDraw);
   },
-  animate: function() {
 
-    box2d.world.Step(1 / 60, 8, 3);
-    box2d.world.ClearForces();
-    box2d.world.DrawDebugData();
-    setTimeout(box2d.animate, 1 / 60);
-    box2d.getBodyPosition('goalKeeper');
-    $(canvas).mouseup(function(e)
-    {
-      stopAt.x=e.pageX;
-      stopAt.y=e.pageY;
-    });
-  },
   createRectangle: function(entity) {
     var bodyDef = new b2BodyDef;
     switch (entity.type) {
@@ -194,9 +183,10 @@ var box2d = {
     joint2.referenceAngle = joint2.bodyB.GetAngle() - joint2.bodyA.GetAngle();
     box2d.world.CreateJoint(joint2);
   },
-  getBodyPosition:function(bodyName){
-    var goalKeeper = box2d.getBodyByName(bodyName);
-    //goalKeeper.GetPosition().y < 70/30;
+  getMapBodyPositionCanvas:function(bodyName){
+    var body = box2d.getBodyByName(bodyName);
+    return {x:body.GetPosition().x*box2d.scale , y: body.GetPosition().y*box2d.scale};
+    /*goalKeeper.GetPosition().y < 70/30;
     //goalKeeper.GetPosition().x > 780/30
     //if(goalKeeper.GetPosition().x < 40/30 || goalKeeper.GetPosition().y < 70/30 || goalKeeper.GetPosition().x > 780/30 ){
      // alert("stop");
@@ -210,9 +200,8 @@ var box2d = {
       execute=false;
       console.log('move');
     }
-
+*/
   },
-
 }
 
 console.log(stopAt.x)

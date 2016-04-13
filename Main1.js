@@ -1,20 +1,3 @@
-var ballRotation=true;
-var canvas = document.getElementById('canvas');
-canvas.width  = 1700;
-canvas.height = 1000;
-var context = canvas.getContext('2d');
-var lastAdvance = 0;
-
-
-
-
-
-
-
-
-
-
-
 function windowToCanvas(canvas, x, y) {
   var bbox = canvas.getBoundingClientRect();
   return { x: x - bbox.left * (canvas.width / bbox.width),
@@ -49,7 +32,8 @@ function preloadimages(arr){
   }
 }
 preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
-
+  var canvas=document.getElementById('canvas');
+  var context=document.getElementById('canvas').getContext('2d');
   var painterBall = new ImageDrawer(images[0], canvas.width / 2 - 200 / 2,  canvas.height/1.3 - 200 / 2, 200, 200);
   var painterGoalKeeper=new ImageDrawer(images[1],canvas.width / 2 - 200 / 2,0,300,300);
   var painterGrass=new ImageDrawer(images[2],0,canvas.height-(canvas.height*0.75),1750,1100);
@@ -59,83 +43,50 @@ preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
   var keeperUp=new Sprite([[0,0,300,300],[250,555,300,300]]);
   var keeperDown= new Sprite([[0,0,300,300],[0,555,300,300]]);
   var ball = new Sprite([[0, 0, 800, 800], [800, 0, 800, 800], [1600, 0, 800, 800]]);
-  painterGrass.simpleDraw(context);
-  painterBall.draw(context, ball.getCurrentImage());
+ painterGrass.simpleDraw(context);
   painterGoalKeeper.draw(context,keeperRight.getCurrentImage());
-var PAGEFLIP_INTERVAL=30;
-  function animateBall(time) {
-    if (ballMovement.continue) {
-      if (time - lastAdvance > PAGEFLIP_INTERVAL) {
-       context.save();
-        painterGrass.clipRegion(context,painterBall);
-        painterGrass.simpleDraw(context);
-        context.restore();
-        ball.loopAllFrames();
-        ballMovement.moveToPath();
-        painterBall.draw(context, ball.getCurrentImage());
-        lastAdvance = time;
-      }
-      window.requestNextAnimationFrame(animateBall);
-    }
-  }
-
-function moveKeeper(spriteKeeper){
-  if (spriteKeeper.currentFrameNumber <= spriteKeeper.numberOfFrames){
-       spriteKeeper.playAllFramesOnce();
+  painterBall.draw(context,ball.getCurrentImage());
+  var canvasWidth=document.getElementById('canvas').width;
+  var canvasHight=document.getElementById('canvas').height;
+  objectList= [{name:"ball",shape:'circle',density:1,friction:0.5,restitution:0.6, x:400-55,y:700, type:'d',radius:55},
+    {name:"goalPostBarTop",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:70,width:750,height:20, type:'s'},
+    {name:"goalPostBarSideLeft",shape:'rectangle',density:1,friction:0.5,restitution:0.6,x:40,y:200,width:20,height:250, type:"s"},
+    {name:"goalPostBarSideRight",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:780,y:200,width:20,height:250, type:'s'},
+    {name:"goalKeeper",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:370,width:100,height:90, type:'k'},
+    {name:"Goal",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:200,width:740,height:200, type:'k'}];
+  box2d.init();
+  Objects.create(objectList[0]);
+  Objects.create(objectList[2]);
+  Objects.create(objectList[3]);
+  Objects.create(objectList[1]);
+  Objects.create(objectList[4]);
+  Objects.create(objectList[5]);
+  function Animate() {
+    pos=box2d.getMapBodyPositionCanvas('ball');
+    box2d.world.Step(1 / 60, 8, 3);
+    box2d.world.ClearForces();
+    box2d.world.DrawDebugData();
     context.save();
-    painterGrass.clipRegion(context,painterGoalKeeper);
+    ball.loopAllFrames();
+    painterGrass.clipRegion2(context,painterBall,pos);
     painterGrass.simpleDraw(context);
+    painterBall.draw2(context,ball.getCurrentImage(),pos);
     context.restore();
-    painterGoalKeeper.draw(context, spriteKeeper.getCurrentImage());
-    window.requestAnimationFrame(function() {
-      //ballMovement.moveToPath();
-      moveKeeper(spriteKeeper);
+    setTimeout(Animate, 1 / 60);
+    //console.log(box2d.getBodyPosition('ball'));
+
+    $(canvas).mouseup(function(e)
+    {
+      stopAt.x=e.pageX;
+      stopAt.y=e.pageY;
     });
   }
-  else{
-    spriteKeeper.currentFrameNumber=0;
+  Animate();
+  box2d.CollisionDetection(); //problem with collision detection
 
-
-  }
-
-}
-
-canvas.addEventListener('mouseup', function (e) {
-  var loc = windowToCanvas(canvas, e.clientX, e.clientY);
- // painterBall.moveDrawerToPoint(painterBall, loc);
-   ballMovement= new Tragetory(250,{x:painterBall._coorXOnCanvas, y:painterBall._coorYOnCanvas}, loc, painterBall);
-  ballRotation=true;
-  window.requestAnimationFrame(function() {
-    //ballMovement.moveToPath();
-    animateBall(ballMovement);
-  });
-});
-  document.onkeyup = function(event) {
-   if (event.keyCode ===38){
-     window.requestAnimationFrame(function() {
-       //ballMovement.moveToPath();
-       moveKeeper(keeperUp);
-     })
-   }
-    if (event.keyCode ===40){
-      window.requestAnimationFrame(function() {
-        //ballMovement.moveToPath();
-        moveKeeper(keeperDown);
-      })
-    }
-    if (event.keyCode ===37){
-      window.requestAnimationFrame(function() {
-        //ballMovement.moveToPath();
-        moveKeeper(keeperleft,ball);
-      });
-    }
-    if (event.keyCode ===39){
-      window.requestAnimationFrame(function() {
-        //ballMovement.moveToPath();
-        moveKeeper(keeperRight);
-      });
-    }
-  }
+//box2d.jointObject("goalKeeperBody","goalKeeperLeg");
+//,Math.floor((Math.random() * -30) - 30)
+  box2d.Impluse('ball',((Math.random() * 80) - 39),Math.floor((Math.random() * -30) - 30));
 });
 
 
