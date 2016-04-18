@@ -8,7 +8,7 @@ class Sprite {
     this._animationCoordinates = animationCoordinates;
     this.animationSequence = animationCoordinates;
     this.numberOfFrames = animationCoordinates.length-1;
-    this.currentFrameNumber=0;
+    this._currentFrameNumber=0;
     this._currentTick = 0;
     this.gravity = 9.81;
     this.pixelMovement = 0;
@@ -24,8 +24,10 @@ class Sprite {
   }
 
  playAllFramesOnce() {
-   this.currentImage = this.animationSequence[this.currentFrameNumber];
-   this.currentFrameNumber += 1;
+   this.currentImage = this.animationSequence[this._currentFrameNumber];
+   if (this._currentFrameNumber <= this.numberOfFrames){
+   this._currentFrameNumber += 1;
+   }
  }
   removeAnimation() {
     this.animationSequence = [];
@@ -34,9 +36,8 @@ class Sprite {
     this.animationSequence = [];
   }
   getCurrentImage() {
-    if(this.currentImage == null) {
-    this.currentImage= this.animationSequence[0];
-    }
+    this.currentImage= this.animationSequence[this._currentFrameNumber];
+
     return this.currentImage;
   }
 

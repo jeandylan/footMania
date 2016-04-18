@@ -14,10 +14,12 @@ class ImageDrawer{
   draw(context, sprite) {
     context.drawImage(this._image, sprite[0], sprite[1], sprite[2], sprite[3], this._coorXOnCanvas,  this._coorYOnCanvas,  this._widthOnCanvas, this._heightOnCanvas); //chage CoorXtoM
   }
-  draw2(context, sprite,object) {
-    context.drawImage(this._image, sprite[0], sprite[1], sprite[2], sprite[3], object.x,  object.y,  this._widthOnCanvas, this._heightOnCanvas); //chage CoorXtoM
+  draw2(context, sprite,pos) {
+    context.drawImage(this._image, sprite[0], sprite[1], sprite[2], sprite[3], pos.x,  pos.y,  sprite[2], sprite[3]); //chage CoorXtoM
   }
-
+  draw3(context, sprite,pos) {
+    context.drawImage(this._image, sprite[0], sprite[1], sprite[2], sprite[3], pos.x, pos.y,  this._widthOnCanvas, this._heightOnCanvas); //chage CoorXtoM
+  }
   clearRet(context) {
     context.clearRect(this._coorXOnCanvas, this._coorYOnCanvas, this._widthOnCanvas, this._heightOnCanvas);
   }

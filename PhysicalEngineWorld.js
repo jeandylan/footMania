@@ -10,6 +10,7 @@ var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 var b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
 var b2jointWldDef = Box2D.Dynamics.Joints.b2WeldJointDef;
 var context=document.getElementById('canvas').getContext('2d');
+var canvas=document.getElementById('canvas');
 var joint1 = Box2D.Dynamics.Joints.b2WeldJoint;
 var stopAt={x:0,y:0};
 var execute=true;
@@ -54,7 +55,7 @@ var box2d = {
     bodyDef.allowSleep = false;
     //bodyDef.awake=true;
     if (entity.angle) {
-      bodyDef.angle = Math.PI * entity.angle / 180;
+      bodyDef.angle =entity.angle;
     }
     var fixtureDef = new b2FixtureDef;
     fixtureDef.density = entity.density;
@@ -186,22 +187,35 @@ var box2d = {
   getMapBodyPositionCanvas:function(bodyName){
     var body = box2d.getBodyByName(bodyName);
     return {x:body.GetPosition().x*box2d.scale , y: body.GetPosition().y*box2d.scale};
-    /*goalKeeper.GetPosition().y < 70/30;
-    //goalKeeper.GetPosition().x > 780/30
-    //if(goalKeeper.GetPosition().x < 40/30 || goalKeeper.GetPosition().y < 70/30 || goalKeeper.GetPosition().x > 780/30 ){
-     // alert("stop");
-    //}
-    if(stopAt.x != 0 && stopAt.y !=0 & execute==true){
-     var moveX=stopAt.x/30-goalKeeper.GetPosition().x;
-      var moveY=stopAt.y/30-goalKeeper.GetPosition().y;
-      console.log(moveX);
-      console.log(moveY);
-      goalKeeper.SetLinearVelocity(new b2Vec2(moveX,moveY));
-      execute=false;
-      console.log('move');
+  },
+  moveRight(){
+    var goalKeeper = box2d.getBodyByName('goalKeeper');
+    var data=goalKeeper.GetUserData();
+    if(goalKeeper.GetPosition().x*box2d.scale > 63){
+      box2d.world.DestroyBody(goalKeeper);
+      data.x-=30/box2d.scale;
+      Objects.create(data);
     }
-*/
+  },
+  moveLeft(){
+    var goalKeeper = box2d.getBodyByName('goalKeeper');
+    var data=goalKeeper.GetUserData();
+    if(goalKeeper.GetPosition().x*box2d.scale < 700){
+      box2d.world.DestroyBody(goalKeeper);
+      data.x+=30/box2d.scale;
+      Objects.create(data);
+    }
+  },
+  moveUp(x,y){
+
+      var goalKeeper = box2d.getBodyByName('goalKeeper');
+    if(goalKeeper.GetPosition().x*box2d.scale < 700 && goalKeeper.GetPosition().y*box2d.scale > 100 ) {
+      var moveX = x / 30 - goalKeeper.GetPosition().x;
+      var moveY = y / 30 - goalKeeper.GetPosition().y;
+      goalKeeper.SetLinearVelocity(new b2Vec2(moveX, moveY));
+    }
+    else{
+      goalKeeper.SetLinearVelocity(new b2Vec2(0, 0));
+    }
   },
 }
-
-console.log(stopAt.x)
