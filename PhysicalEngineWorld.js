@@ -152,13 +152,17 @@ var box2d = {
   CollisionDetection: function() { //work with Dynamic obj
     var listener = new Box2D.Dynamics.b2ContactListener;
     listener.BeginContact = function(contact) {
-      console.log('collide '+contact.GetFixtureA().GetBody().GetUserData().name);
+     console.log('collide '+contact.GetFixtureA().GetBody().GetUserData().name);
       console.log('collide '+contact.GetFixtureB().GetBody().GetUserData().name);
       //alert("collide");
     };
     listener.PostSolve = function(contact) {
       //var body1 = contact.GetFixtureA().GetBody();
      // box2d.ApplyLinearVelocity('ball',0,0);
+    };
+    listener.PreSolve = function(contact, oldManifold) {
+      //console.log('Pre collide '+contact.GetFixtureA().GetBody().GetUserData().name);
+     // console.log(' pre collide '+contact.GetFixtureB().GetBody().GetUserData().name);
     };
     box2d.world.SetContactListener(listener);
 

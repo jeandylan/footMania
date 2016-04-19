@@ -1,11 +1,11 @@
 class ImageDrawer{
-  constructor(img,coorXOnCanavs, coorYOnCanvas, widthOnCanvas, heightOnCanvas) {
+  constructor(coorXOnCanavs, coorYOnCanvas, widthOnCanvas, heightOnCanvas) {
     this._coorXOnCanvas = coorXOnCanavs;
     this._coorYOnCanvas = coorYOnCanvas;
     this._heightOnCanvas = heightOnCanvas;
     this._widthOnCanvas = widthOnCanvas;
     this._loaded=false;
-    this._image = img;
+    this._image = null;
     this._number=0;
 
 
