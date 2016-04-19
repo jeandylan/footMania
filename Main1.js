@@ -1,11 +1,11 @@
+
+var canvas=document.getElementById('canvas');
 function windowToCanvas(canvas, x, y) {
   var bbox = canvas.getBoundingClientRect();
   return { x: x - bbox.left * (canvas.width / bbox.width),
     y: y - bbox.top * (canvas.height / bbox.height)
   };
 }
-var canvas=document.getElementById('canvas');
-
 var x;
 var y;
 
@@ -42,29 +42,23 @@ preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
 
   var context=document.getElementById('canvas').getContext('2d');
   //context.translate(canvas.width / 2, canvas.height / 2);
-  var painterBall = new ImageDrawer(images[0], canvas.width / 2 - 200 / 2,  canvas.height/1.3 - 200 / 2, 100, 100);
-
-  var painterGrass=new ImageDrawer(images[2],-canvas.width/2,-75,1750,1100);
+  var painterBall = new ImageDrawer(images[0], canvas.width / 2 - 200 / 2,  700, 100, 100);
+  var painterGrass=new ImageDrawer(images[2],-canvas.width/2,50,1750,1100);
   //define sprites
-  var keeperRight=new Sprite([[820,170,274,115]]);
-  var keeperleft=new Sprite([[828,444,275,106]]);
-  var keeper90Left=new Sprite([[272,341,275,203]]);
-  var keeper90Right=new Sprite([[533,75,275,203]]);
+  var keeperRight=new Sprite([[820,170,275,115]]);
+  var keeperleft=new Sprite([[828,444,279,120]]);
+  var keeper90Left=new Sprite([[272,341,280,210]]);
+  var keeper90Right=new Sprite([[533,75,285,215]]);
   var keeperUp=new Sprite([[250,555,300,300]]);
-  var keeperCenter= new Sprite([[35,69,175,200]]);
+  var keeperCenter= new Sprite([[35,57,136,216]]);
   var keeperDown= new Sprite([[0,0,300,300],[0,555,300,300]]);
   var ball = new Sprite([[0, 0, 800, 800], [800, 0, 800, 800], [1600, 0, 800, 800]]);
-  painterGrass.simpleDraw(context);
-  //
-  //painterBall.draw(context,ball.getCurrentImage());
-  var canvasWidth=document.getElementById('canvas').width;
-  var canvasHight=document.getElementById('canvas').height;
 
-  objectList= [{name:"ball",shape:'circle',density:1,friction:0.5,restitution:0.6, x:400-55,y:700, type:'d',radius:45},
-    {name:"goalPostBarTop",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:70,width:750,height:20, type:'s'},
+  objectList= [{name:"ball",shape:'circle',density:1,friction:0.5,restitution:0.6, x:painterBall._coorXOnCanvas,y:painterBall._coorYOnCanvas, type:'d',radius:45},
+    {name:"goalPostBarTop",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:40,y:200,width:750,height:20, type:'s'},
     {name:"goalPostBarSideLeft",shape:'rectangle',density:1,friction:0.5,restitution:0.6,x:40,y:200,width:20,height:250, type:"s"},
     {name:"goalPostBarSideRight",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:780,y:200,width:20,height:250, type:'s'},
-    {name:"goalKeeper",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:300,width:100,height:200, type:'k'},
+    {name:"goalKeeper",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:300,width:keeperCenter.getWidth(),height:keeperCenter.getHeight(), type:'k'},
     {name:"Goal",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:200,width:740,height:200, type:'k'}];
   box2d.init();
   Objects.create(objectList[0]);
@@ -74,43 +68,92 @@ preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
   Objects.create(objectList[4]);
   //Objects.create(objectList[5]);
 
-  var pos=box2d.getMapBodyPositionCanvas('ball');
+  var pos=box2d.getMapBodyPositionCanvasCircle('ball',45);
   var posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper');
   var painterGoalKeeper=new ImageDrawer(images[1],posKeeper.x,posKeeper.y,175,200);
-  painterGoalKeeper.draw2(context,keeperCenter.getCurrentImage(),{x:objectList[4].x,y:objectList[4].y});
+
+  painterGrass.simpleDraw(context);
+  painterBall.draw(context,ball.getCurrentImage());
+  painterGoalKeeper.draw2(context,keeperCenter.getCurrentImage(),{x:400,y:300});
+
+drawGoalPost();
+
   function Animate() {
-    pos=box2d.getMapBodyPositionCanvas('ball');
+    pos=box2d.getMapBodyPositionCanvasCircle('ball',45);
     box2d.world.Step(1 / 60, 8, 3);
     box2d.world.ClearForces();
     box2d.world.DrawDebugData();
-  box2d.drawDebug();
+  //box2d.drawDebug();
     context.save();
     ball.loopAllFrames();
-    painterGrass.clipRegion2(context,painterBall,pos);
+    painterGrass.clipRegionSprite(context,painterBall,pos);
     painterGrass.simpleDraw(context);
     painterBall.draw3(context,ball.getCurrentImage(),pos);
+    drawGoalPost();
     context.restore();
     if (move) {
-    box2d.moveUp(x,y);
-      posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper');
+      box2d.moveUp(x,y);
+      context.save();
+      posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper',keeperCenter.getWidth(),keeperleft.getHeight());
+      painterGoalKeeper.clipRegionSpriteWH(context,keeperCenter.getWidth(),keeperCenter.getHeight(),posKeeper);
+      painterGrass.simpleDraw(context);
+      painterBall.draw3(context,ball.getCurrentImage(),pos);
+      drawGoalPost();
+      context.restore();
+     // console.log(posKeeper.x+","+posKeeper.y);
     switch (direction){
+
       case 1:
+        context.save();
+        posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper',keeperleft.getWidth(),keeperleft.getHeight());
+       painterGoalKeeper.clipRegionSpriteWH(context,keeperleft.getWidth(),keeperleft.getHeight(),posKeeper);
+        painterGrass.simpleDraw(context);
+        drawGoalPost();
         painterGoalKeeper.draw2(context,keeperleft.getCurrentImage(),posKeeper);
+        painterBall.draw3(context,ball.getCurrentImage(),pos);
+        context.restore();
         break;
       case 2:
+        context.save();
+        posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper',keeper90Left.getWidth(),keeper90Left.getHeight());
+        painterGoalKeeper.clipRegionSpriteWH(context,keeper90Left.getWidth(),keeper90Left.getHeight(),posKeeper);//add +20 because 45 degree tend to be clip too small
+        painterGrass.simpleDraw(context);
+        drawGoalPost();
         painterGoalKeeper.draw2(context,keeper90Left.getCurrentImage(),posKeeper);
+        painterBall.draw3(context,ball.getCurrentImage(),pos);
+        context.restore();
         break;
       case 3:
-        painterGoalKeeper.draw2(context,keeperUp.getCurrentImage(),posKeeper);
+        context.save();
+        posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper',keeperUp.getWidth(),keeperUp.getHeight());
+        painterGoalKeeper.clipRegionSpriteWH(context,keeperUp.getWidth(),keeperUp.getHeight(),posKeeper);
+        painterGrass.simpleDraw(context);
+        drawGoalPost();
+       painterGoalKeeper.draw2(context,keeperUp.getCurrentImage(),posKeeper);
+        context.restore();
         break;
       case 4:
+        context.save();
+        posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper',keeper90Right.getWidth(),keeper90Right.getHeight());
+        painterGoalKeeper.clipRegionSpriteWH(context,keeper90Right.getWidth()+20,keeper90Right.getHeight()+20,posKeeper); //add +20 because 45 degree tend to be clip too small
+        painterGrass.simpleDraw(context);
+        drawGoalPost();
         painterGoalKeeper.draw2(context,keeper90Right.getCurrentImage(),posKeeper);
+        painterBall.draw3(context,ball.getCurrentImage(),pos);
+        context.restore();
         break;
       case 5:
+        context.save();
+        posKeeper=box2d.getMapBodyPositionCanvas('goalKeeper',keeperRight.getWidth(),keeperRight.getHeight());
+        painterGoalKeeper.clipRegionSpriteWH(context,keeperRight.getWidth(),keeperRight.getHeight()+100,posKeeper); //some awardness add 20
+        painterGrass.simpleDraw(context);
+        drawGoalPost();
+        painterBall.draw3(context,ball.getCurrentImage(),pos);
         painterGoalKeeper.draw2(context,keeperRight.getCurrentImage(),posKeeper);
+
+        context.restore();
         break;
       default:
-        p
         break;
     }
     }
@@ -126,8 +169,9 @@ var move= false;
 var direction=0;
 $(canvas).mouseup(function(e)
 {
-x=e.pageX;
-y=e.pageY;
+  posR=windowToCanvas(canvas,e.pageX,e.pageY)
+x=posR.x;
+y=posR.y;
   var goalKeeper = box2d.getBodyByName('goalKeeper');
   var delX=x-goalKeeper.GetPosition().x*30;
   var delY=y-goalKeeper.GetPosition().y*30;
@@ -180,6 +224,18 @@ y=e.pageY;
       }
   }
 });
+function drawGoalPost(){
+  context.strokeStyle="rgba(255, 255, 255, .0)";
+  context.fillStyle="#EEF1F6";
+  context.fillRect(40,200,750,25);
+  context.stroke();
+  context.fillStyle="#EEF1F6";
+  context.fillRect(40,200,25,250);
+  context.stroke();
+  context.fillStyle="#EEF1F6";
+  context.fillRect(765,200,25,250);
+  context.stroke();
+}
 
 
 

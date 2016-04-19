@@ -40,6 +40,12 @@ class Sprite {
 
     return this.currentImage;
   }
+  getWidth(){
+    return this.animationSequence[0][2];
+  }
+  getHeight(){
+    return this.animationSequence[0][3];
+  }
 
   setPixelPerMeter(canvasHeight, lenghtNoAnimation, MetersToAnimate) {
     this.pixelMovement = (canvasHeight - lenghtNoAnimation) / MetersToAnimate;

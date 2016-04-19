@@ -49,8 +49,8 @@ var box2d = {
         bodyDef.type = b2Body.b2_kinematicBody;
         break;
     }
-    bodyDef.position.x = entity.x / box2d.scale;
-    bodyDef.position.y = entity.y / box2d.scale;
+    bodyDef.position.x = (entity.x+entity.width/2) / box2d.scale;
+    bodyDef.position.y = (entity.y+entity.height/2) / box2d.scale;
     bodyDef.awake = true;
     bodyDef.allowSleep = false;
     //bodyDef.awake=true;
@@ -184,9 +184,14 @@ var box2d = {
     joint2.referenceAngle = joint2.bodyB.GetAngle() - joint2.bodyA.GetAngle();
     box2d.world.CreateJoint(joint2);
   },
-  getMapBodyPositionCanvas:function(bodyName){
+  getMapBodyPositionCanvas:function(bodyName,width,height){
     var body = box2d.getBodyByName(bodyName);
-    return {x:body.GetPosition().x*box2d.scale , y: body.GetPosition().y*box2d.scale};
+    return {x:(body.GetPosition().x-((width/30)/2))*box2d.scale , y: (body.GetPosition().y-((height/30)/2))*box2d.scale};
+  },
+  getMapBodyPositionCanvasCircle:function(bodyName,radius){
+    var body = box2d.getBodyByName(bodyName);
+    var rd=(radius/30)/2;
+    return {x:(body.GetPosition().x-rd)*box2d.scale , y: (body.GetPosition().y-rd)*box2d.scale};
   },
   moveRight(){
     var goalKeeper = box2d.getBodyByName('goalKeeper');

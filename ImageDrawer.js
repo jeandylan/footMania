@@ -26,16 +26,23 @@ class ImageDrawer{
 simpleDraw(context){
   context.drawImage(this._image, this._coorXOnCanvas, this._coorYOnCanvas);
 }
-  clipRegion(context, spritePainterToClip){
+  clipSpriteRegion(context, spritePainterToClip){
     context.beginPath();
     context.rect(spritePainterToClip._coorXOnCanvas, spritePainterToClip._coorYOnCanvas, spritePainterToClip._widthOnCanvas, spritePainterToClip._heightOnCanvas);
     //context.stroke();
     context.closePath();
     context.clip();
   }
-  clipRegion2(context, spritePainterToClip,pos){
+  clipRegionSprite(context, spritePainterToClip, posSprite){
     context.beginPath();
-    context.rect(pos.x, pos.y, spritePainterToClip._widthOnCanvas, spritePainterToClip._heightOnCanvas);
+    context.rect(posSprite.x, posSprite.y, spritePainterToClip._widthOnCanvas, spritePainterToClip._heightOnCanvas);
+    //context.stroke();
+    context.closePath();
+    context.clip();
+  }
+  clipRegionSpriteWH(context, width, height, posSprite){
+    context.beginPath();
+    context.rect(posSprite.x, posSprite.y, width, height);
     //context.stroke();
     context.closePath();
     context.clip();
