@@ -152,8 +152,20 @@ var box2d = {
   CollisionDetection: function(callback) { //work with Dynamic obj
     var listener = new Box2D.Dynamics.b2ContactListener;
     listener.BeginContact = function(contact) {
-     console.log('collide '+contact.GetFixtureA().GetBody().GetUserData().name);
-      console.log('collide '+contact.GetFixtureB().GetBody().GetUserData().name);
+     var  bodyA=contact.GetFixtureA().GetBody().GetUserData().name;
+      var bodyB=contact.GetFixtureB().GetBody().GetUserData().name;
+      console.log(bodyA);
+      console.log(bodyB);
+      if((bodyA || bodyB)!='Goal') {
+        console.log("bbb");
+
+        callback(2);
+      }
+      if((bodyA || bodyB)!='goalKeeper') {
+        console.log("ggg");
+        callback(1);
+      }
+
       //alert("collide");
     };
     listener.PostSolve = function(contact) {
@@ -162,10 +174,9 @@ var box2d = {
     };
     listener.PreSolve = function(contact, oldManifold) {
       if((contact.GetFixtureA().GetBody().GetUserData().name ||contact.GetFixtureB().GetBody().GetUserData().name) =='Goal' ) {
+
         callback(1);
       }
-      //console.log('Pre collide '+contact.GetFixtureA().GetBody().GetUserData().name);
-     // console.log(' pre collide '+contact.GetFixtureB().GetBody().GetUserData().name);
 
     };
     box2d.world.SetContactListener(listener);

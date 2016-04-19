@@ -83,6 +83,7 @@ function startGame(){
   painterBall.draw(context, ball.getCurrentImage());
   painterGoalKeeper.draw2(context, keeperCenter.getCurrentImage(), {x: 400, y: 300});
   drawGoalPost();
+  continueAnimation=true;
   requestAnimFrame(Animate);
   setTimeout(function(){
       box2d.Impluse('ball',((Math.random() * 80) - 39),Math.floor((Math.random() * -30) - 30));
@@ -158,6 +159,7 @@ function Animate() {
     box2d.world.DrawDebugData();
     if (rotateBall) {
       ball.loopAllFrames();
+
     }
     // box2d.drawDebug();
     context.save();
@@ -257,6 +259,27 @@ function Animate() {
       requestAnimFrame(Animate);
     }
   }
+  else{
+    setTimeout(function(){
+      destroyPhysicObject(objectList);
+      //because obj goalKepper property was changed we reEstablishIt
+      objectList[4] = {
+        name: "goalKeeper",
+        shape: 'rectangle',
+        density: 1,
+        friction: 0.5,
+        restitution: 0.6,
+        x: 400,
+        y: 300,
+        width: keeperCenter.getWidth(),
+        height: keeperCenter.getHeight(),
+        type: 'k'
+      };
+      direction = 0;
+      move = false;
+      startGame();
+    }, 2000);
+  }
 }
 
 
@@ -265,6 +288,12 @@ function displayOutcome(outcome){
     context.font = 'italic 50pt Calibri';
     context.fillStyle = '#b8860b';
     context.fillText('Goal', 150, 100);
+    continueAnimation=false;
+  }
+  if (outcome==2){
+    context.font = 'italic 50pt Calibri';
+    context.fillStyle = '#00000';
+    context.fillText('Block', 150, 100);
   }
 }
 
