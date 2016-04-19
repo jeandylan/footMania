@@ -13,6 +13,7 @@ var deg2rad = Math.PI/180;
 var move= false;
 var direction=0;
 var rotateBall=false;
+var continueAnimation=true;
 box2d.init();
 var context=document.getElementById('canvas').getContext('2d');
 var painterBall = new ImageDrawer(canvas.width / 2 - 200 / 2,  700, 100, 100);
@@ -33,7 +34,16 @@ objectList= [{name:"ball",shape:'circle',density:1,friction:0.3,restitution:0.6,
   {name:"goalPostBarSideRight",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:780,y:200,width:20,height:250, type:'s'},
   {name:"goalKeeper",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:300,width:keeperCenter.getWidth(),height:keeperCenter.getHeight(), type:'k'},
   {name:"Goal",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:70,y:230,width:700,height:200, type:'k'}];
-
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame       ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.oRequestAnimationFrame      ||
+    window.msRequestAnimationFrame     ||
+    function(/* function */ callback, /* DOMElement */ element){
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
 function preloadimages(arr){
   var newimages=[], loadedimages=0
   var postaction=function(){}
@@ -73,13 +83,13 @@ function startGame(){
   painterBall.draw(context, ball.getCurrentImage());
   painterGoalKeeper.draw2(context, keeperCenter.getCurrentImage(), {x: 400, y: 300});
   drawGoalPost();
-  Animate();
+  requestAnimFrame(Animate);
   setTimeout(function(){
       box2d.Impluse('ball',((Math.random() * 80) - 39),Math.floor((Math.random() * -30) - 30));
-      box2d.CollisionDetection();
+     box2d.CollisionDetection(displayOutcome);
     rotateBall=true;
   }, 3000);
- console.log("waiting");
+ //console.log("waiting");
 }
 
 $(canvas).mouseup(function(e) {
@@ -140,6 +150,7 @@ y=posR.y;
 });
 
 function Animate() {
+  if (continueAnimation) {
     posBall = box2d.getMapBodyPositionCanvasCircle('ball', 45);
     posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper');
     box2d.world.Step(1 / 60, 8, 3);
@@ -148,7 +159,7 @@ function Animate() {
     if (rotateBall) {
       ball.loopAllFrames();
     }
-    //box2d.drawDebug();
+    // box2d.drawDebug();
     context.save();
     painterGrass.clipRegionSprite(context, painterBall, posBall);
     painterGrass.simpleDraw(context);
@@ -156,7 +167,7 @@ function Animate() {
     drawGoalPost();
     context.restore();
     if (move) {
-
+      //console.log("true");
       box2d.moveUp(x, y);
       context.save();
       posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper', keeperCenter.getWidth(), keeperleft.getHeight());
@@ -224,16 +235,38 @@ function Animate() {
     }
     if ((posBall.x > canvas.width || posBall.y > canvas.height)) {
       destroyPhysicObject(objectList);
+      //because obj goalKepper property was changed we reEstablishIt
+      objectList[4] = {
+        name: "goalKeeper",
+        shape: 'rectangle',
+        density: 1,
+        friction: 0.5,
+        restitution: 0.6,
+        x: 400,
+        y: 300,
+        width: keeperCenter.getWidth(),
+        height: keeperCenter.getHeight(),
+        type: 'k'
+      };
+      direction = 0;
+      move = false;
       startGame();
-     return;
+      return;
     }
-  else{
-      setTimeout(Animate, 1 / 60);
+    else {
+      requestAnimFrame(Animate);
     }
-
+  }
 }
 
 
+function displayOutcome(outcome){
+  if (outcome==1) {
+    context.font = 'italic 50pt Calibri';
+    context.fillStyle = '#b8860b';
+    context.fillText('Goal', 150, 100);
+  }
+}
 
 function createPhysicObject(objectList){
   for(var i=0; i<objectList.length; i++){
