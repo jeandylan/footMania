@@ -9,15 +9,21 @@ var x;
 var y;
 canvas.width= 1000;
 canvas.height=900;
+var context=document.getElementById('canvas').getContext('2d');
+//draw score board
+context.fillStyle = '#F69769';
+context.fillRect(0,0,1000,40);
 var deg2rad = Math.PI/180;
 var move= false;
+var tryLeft=10;
+var goal=0;
 var direction=0;
 var rotateBall=false;
 var continueAnimation=true;
 box2d.init();
-var context=document.getElementById('canvas').getContext('2d');
-var painterBall = new ImageDrawer(canvas.width / 2 - 200 / 2,  700, 100, 100);
-var painterGrass=new ImageDrawer(-canvas.width/2,50,1750,1100);
+
+var painterBall = new ImageDrawer(canvas.width / 2 - 200 / 2,  800, 100, 100);
+var painterGrass=new ImageDrawer(-canvas.width/2,500,1750,1100);
 var painterGoalKeeper=new ImageDrawer(400,300,175,200);
 //define sprites
 var keeperRight=new Sprite([[820,170,275,115]]);
@@ -77,6 +83,8 @@ preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
 startGame();
 });
 function startGame(){
+  tryLeft--;
+  console.log(tryLeft);
   rotateBall=false;
   createPhysicObject(objectList);
   painterGrass.simpleDraw(context);
@@ -285,15 +293,27 @@ function Animate() {
 
 function displayOutcome(outcome){
   if (outcome==1) {
-    context.font = 'italic 50pt Calibri';
-    context.fillStyle = '#b8860b';
-    context.fillText('Goal', 150, 100);
+    goal++;
+    context.font = 'italic 25pt Calibri';
+    context.clearRect(0,0,1000,40);
+    context.fillStyle = '#F69769';
+    context.fillRect(0,0,1000,40);
+    context.fillStyle = '#F8F4F8';
+    context.fillText('Goal :'+goal, 20, 20);
+    context.fillText('left :'+tryLeft, 500, 20);
     continueAnimation=false;
+
+    console.log(goal);
   }
   if (outcome==2){
-    context.font = 'italic 50pt Calibri';
-    context.fillStyle = '#00000';
-    context.fillText('Block', 150, 100);
+    context.font = 'italic 25pt Calibri';
+    context.clearRect(0,0,1000,40);
+    context.fillStyle = '#F69769';
+    context.fillRect(0,0,1000,40);
+    context.fillStyle = '#F8F4F8';
+    context.fillText('Goal :'+goal, 20, 20);
+    context.fillText('left :'+tryLeft, 500, 20);
+    //context.fillText('Block', 150, 100);
   }
 }
 
