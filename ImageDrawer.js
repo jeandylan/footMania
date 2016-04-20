@@ -26,6 +26,9 @@ class ImageDrawer{
 simpleDraw(context){
   context.drawImage(this._image, this._coorXOnCanvas, this._coorYOnCanvas);
 }
+  simpleDraw2(context){
+    context.drawImage(this._image, this._coorXOnCanvas, this._coorYOnCanvas,this._widthOnCanvas, this._heightOnCanvas);
+  }
   clipSpriteRegion(context, spritePainterToClip){
     context.beginPath();
     context.rect(spritePainterToClip._coorXOnCanvas, spritePainterToClip._coorYOnCanvas, spritePainterToClip._widthOnCanvas, spritePainterToClip._heightOnCanvas);

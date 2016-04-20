@@ -154,16 +154,17 @@ var box2d = {
     listener.BeginContact = function(contact) {
      var  bodyA=contact.GetFixtureA().GetBody().GetUserData().name;
       var bodyB=contact.GetFixtureB().GetBody().GetUserData().name;
-      console.log(bodyA);
-      console.log(bodyB);
-      if((bodyA || bodyB)!='Goal') {
-        console.log("bbb");
-
+      if(bodyA.startsWith("goalP") || bodyB.startsWith("goalP")) {
+        console.log("gg");
+        callback(1);
+      }
+      if(bodyA.startsWith("out") || bodyB.startsWith("out")) {
+        console.log("o");
         callback(2);
       }
-      if((bodyA || bodyB)!='goalKeeper') {
-        console.log("ggg");
-        callback(1);
+      if(bodyA.startsWith("goalK") || bodyB.startsWith("goalK")) {
+        console.log("o");
+        callback(2);
       }
 
       //alert("collide");

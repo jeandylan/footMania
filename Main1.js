@@ -1,15 +1,43 @@
 var canvas=document.getElementById('canvas');
+var context=document.getElementById('canvas').getContext('2d');
+var logClick=false;
 function windowToCanvas(canvas, x, y) {
-  var bbox = canvas.getBoundingClientRect();
-  return { x: x - bbox.left * (canvas.width / bbox.width),
-    y: y - bbox.top * (canvas.height / bbox.height)
-  };
+
+    var bbox = canvas.getBoundingClientRect();
+    return {
+      x: x - bbox.left * (canvas.width / bbox.width),
+      y: y - bbox.top * (canvas.height / bbox.height)
+    };
+
 }
 var x;
 var y;
 canvas.width= 1000;
 canvas.height=900;
-var context=document.getElementById('canvas').getContext('2d');
+var video = document.getElementById('video');
+
+// set canvas size = video size when known
+// set canvas size = video size when known
+video.addEventListener('loadedmetadata', function() {
+});
+
+video.addEventListener('play', function() {
+  var $this = this; //cache
+  (function loop() {
+    if (!$this.paused && !$this.ended) {
+      context.drawImage($this, 0, 0,1000,900);
+      setTimeout(loop, 1000 / 30); // drawing at 30fps
+    }
+    else{
+      //context.clearRect(0,0,1000,1000);
+      startGame();
+      logClick=true;
+      //context.fillStyle = '#F69769';
+      //context.fillRect(0,0,1000,40);
+    }
+  })();
+}, 0);
+
 //draw score board
 context.fillStyle = '#F69769';
 context.fillRect(0,0,1000,40);
@@ -21,10 +49,18 @@ var direction=0;
 var rotateBall=false;
 var continueAnimation=true;
 box2d.init();
+//audios
+var audioKick = new Audio('kick.ogg');
+var audioGoal = new Audio('goalFx.mp3');
+var audioWhist=new Audio('whist.ogg');
 
+
+
+///
 var painterBall = new ImageDrawer(canvas.width / 2 - 200 / 2,  800, 100, 100);
 var painterGrass=new ImageDrawer(-canvas.width/2,500,1750,1100);
 var painterGoalKeeper=new ImageDrawer(400,300,175,200);
+var painterBackground=new ImageDrawer(0,40,1000,460);
 //define sprites
 var keeperRight=new Sprite([[820,170,275,115]]);
 var keeperleft=new Sprite([[828,444,279,120]]);
@@ -36,10 +72,11 @@ var keeperDown= new Sprite([[0,0,300,300],[0,555,300,300]]);
 var ball = new Sprite([[0, 0, 800, 800], [800, 0, 800, 800], [1600, 0, 800, 800]]);
 objectList= [{name:"ball",shape:'circle',density:1,friction:0.3,restitution:0.6, x:painterBall._coorXOnCanvas,y:painterBall._coorYOnCanvas, type:'d',radius:45},
   {name:"goalPostBarTop",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:40,y:200,width:750,height:20, type:'s'},
-  {name:"goalPostBarSideLeft",shape:'rectangle',density:1,friction:0.5,restitution:0.6,x:40,y:200,width:20,height:250, type:"s"},
-  {name:"goalPostBarSideRight",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:780,y:200,width:20,height:250, type:'s'},
-  {name:"goalKeeper",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:400,y:300,width:keeperCenter.getWidth(),height:keeperCenter.getHeight(), type:'k'},
-  {name:"Goal",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:70,y:230,width:700,height:200, type:'k'}];
+  {name:"goalPostBarSideLeft",shape:'rectangle',density:1,friction:0.5,restitution:0.6,x:40,y:200,width:20,height:300, type:"s"},
+  {name:"goalPostBarSideRight",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:760,y:200,width:20,height:300, type:'s'},
+  {name:"goalKeeper",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:370,y:300,width:keeperCenter.getWidth(),height:keeperCenter.getHeight(), type:'k'},
+  {name:"outside",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:0,y:0,width:60,height:500, type:'k'},
+  {name:"outside2",shape:'rectangle',density:1,friction:0.5,restitution:0.6, x:780,y:0,width:210,height:500, type:'k'}];
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       ||
     window.webkitRequestAnimationFrame ||
@@ -76,85 +113,90 @@ function preloadimages(arr){
     }
   }
 }
-preloadimages(['ball3.svg','g.png','Grass.jpeg']).done(function(images){
+preloadimages(['ball3.svg','g.png','Grass.jpeg','back2.png']).done(function(images){
   painterBall._image=images[0];
   painterGoalKeeper._image=images[1];
   painterGrass._image=images[2];
-startGame();
+  painterBackground._image=images[3];
 });
 function startGame(){
+  audioWhist.play();
   tryLeft--;
   console.log(tryLeft);
   rotateBall=false;
   createPhysicObject(objectList);
   painterGrass.simpleDraw(context);
+  painterBackground.simpleDraw2(context);
   painterBall.draw(context, ball.getCurrentImage());
   painterGoalKeeper.draw2(context, keeperCenter.getCurrentImage(), {x: 400, y: 300});
   drawGoalPost();
   continueAnimation=true;
   requestAnimFrame(Animate);
   setTimeout(function(){
-      box2d.Impluse('ball',((Math.random() * 80) - 39),Math.floor((Math.random() * -30) - 30));
-     box2d.CollisionDetection(displayOutcome);
+    box2d.Impluse('ball',((Math.random() * 80) - 39),Math.floor((Math.random() * -30) - 30));
+    box2d.CollisionDetection(displayOutcome);
     rotateBall=true;
+    audioKick.play();
   }, 3000);
- //console.log("waiting");
+  //console.log("waiting");
 }
 
 $(canvas).mouseup(function(e) {
-  posR=windowToCanvas(canvas,e.pageX,e.pageY)
-x=posR.x;
-y=posR.y;
-  var goalKeeper = box2d.getBodyByName('goalKeeper');
-  var delX=x-goalKeeper.GetPosition().x*30;
-  var delY=y-goalKeeper.GetPosition().y*30;
- var deg=Math.atan2(delX,delY)*57;
-  if(deg > 80 || deg < -80) {
-    move = true;
-      if(deg  < -100 && deg > -140 ){//90 left
-     direction=2;
+  if(logClick) {
+    posR = windowToCanvas(canvas, e.pageX, e.pageY)
+    x = posR.x;
+    y = posR.y;
+    var goalKeeper = box2d.getBodyByName('goalKeeper');
+    var delX = x - goalKeeper.GetPosition().x * 30;
+    var delY = y - goalKeeper.GetPosition().y * 30;
+    var deg = Math.atan2(delX, delY) * 57;
+    if (deg > 80 || deg < -80) {
+      move = true;
+      if (deg < -100 && deg > -140) {//90 left
+        direction = 2;
         ///create new bofydef for goalkeeper
-        var newGoalKeeperDef=goalKeeper.GetUserData();
-        newGoalKeeperDef.angle=-45;
+        var newGoalKeeperDef = goalKeeper.GetUserData();
+        newGoalKeeperDef.angle = -45;
         box2d.world.DestroyBody(goalKeeper);
         Objects.create(newGoalKeeperDef);
       }
-    else if (deg > 140) {//up
-        direction=3;
+      else if (deg > 140) {//up
+        direction = 3;
       }
-    else if (deg < -140) {//up
-        direction=3;
+      else if (deg < -140) {//up
+        direction = 3;
       }
-    else if(deg < 140 && deg > 100) {//90 right
-        direction=4;
+      else if (deg < 140 && deg > 100) {//90 right
+        direction = 4;
         ///create new bofydef for goalkeeper
-        var newGoalKeeperDef=goalKeeper.GetUserData();
-        newGoalKeeperDef.angle=45;
+        var newGoalKeeperDef = goalKeeper.GetUserData();
+        newGoalKeeperDef.angle = 45;
         box2d.world.DestroyBody(goalKeeper);
         Objects.create(newGoalKeeperDef);
       }
-    else if (deg > 80 && deg <100) {//right
-      direction=5;
+      else if (deg > 80 && deg < 100) {//right
+        direction = 5;
         ///create new bofydef for goalkeeper
-        var newGoalKeeperDef=goalKeeper.GetUserData();
-       var tempW=newGoalKeeperDef.width;
-        var tempH=newGoalKeeperDef.height;
-        newGoalKeeperDef.height=tempW;
-        newGoalKeeperDef.width=tempH;
+        var newGoalKeeperDef = goalKeeper.GetUserData();
+        var tempW = newGoalKeeperDef.width;
+        var tempH = newGoalKeeperDef.height;
+        newGoalKeeperDef.height = tempW;
+        newGoalKeeperDef.width = tempH;
         box2d.world.DestroyBody(goalKeeper);
         Objects.create(newGoalKeeperDef);
       }
-      else if (deg < -80 && deg >-100) {//left
-        direction=1;
+      else if (deg < -80 && deg > -100) {//left
+        direction = 1;
         ///create new bofydef for goalkeeper
-        var newGoalKeeperDef=goalKeeper.GetUserData();
-        var tempW=newGoalKeeperDef.width;
-        var tempH=newGoalKeeperDef.height;
-        newGoalKeeperDef.height=tempW;
-        newGoalKeeperDef.width=tempH;
+        var newGoalKeeperDef = goalKeeper.GetUserData();
+        var tempW = newGoalKeeperDef.width;
+        var tempH = newGoalKeeperDef.height;
+        newGoalKeeperDef.height = tempW;
+        newGoalKeeperDef.width = tempH;
         box2d.world.DestroyBody(goalKeeper);
         Objects.create(newGoalKeeperDef);
       }
+    }
   }
 });
 
@@ -173,6 +215,7 @@ function Animate() {
     context.save();
     painterGrass.clipRegionSprite(context, painterBall, posBall);
     painterGrass.simpleDraw(context);
+    painterBackground.simpleDraw2(context);
     painterBall.draw3(context, ball.getCurrentImage(), posBall);
     drawGoalPost();
     context.restore();
@@ -191,9 +234,11 @@ function Animate() {
 
         case 1:
           context.save();
+          console.log("rfr");
           posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper', keeperleft.getWidth(), keeperleft.getHeight());
-          painterGoalKeeper.clipRegionSpriteWH(context, keeperleft.getWidth(), keeperleft.getHeight(), posKeeper);
+          painterGoalKeeper.clipRegionSpriteWH(context, keeperleft.getWidth(), keeperleft.getHeight()+100, posKeeper);
           painterGrass.simpleDraw(context);
+          painterBackground.simpleDraw2(context);
           drawGoalPost();
           painterGoalKeeper.draw2(context, keeperleft.getCurrentImage(), posKeeper);
           painterBall.draw3(context, ball.getCurrentImage(), posBall);
@@ -204,6 +249,7 @@ function Animate() {
           posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper', keeper90Left.getWidth(), keeper90Left.getHeight());
           painterGoalKeeper.clipRegionSpriteWH(context, keeper90Left.getWidth(), keeper90Left.getHeight(), posKeeper);//add +20 because 45 degree tend to be clip too small
           painterGrass.simpleDraw(context);
+          painterBackground.simpleDraw2(context);
           drawGoalPost();
           painterGoalKeeper.draw2(context, keeper90Left.getCurrentImage(), posKeeper);
           painterBall.draw3(context, ball.getCurrentImage(), posBall);
@@ -214,6 +260,7 @@ function Animate() {
           posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper', keeperUp.getWidth(), keeperUp.getHeight());
           painterGoalKeeper.clipRegionSpriteWH(context, keeperUp.getWidth(), keeperUp.getHeight(), posKeeper);
           painterGrass.simpleDraw(context);
+          painterBackground.simpleDraw2(context);
           drawGoalPost();
           painterGoalKeeper.draw2(context, keeperUp.getCurrentImage(), posKeeper);
           context.restore();
@@ -223,6 +270,7 @@ function Animate() {
           posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper', keeper90Right.getWidth(), keeper90Right.getHeight());
           painterGoalKeeper.clipRegionSpriteWH(context, keeper90Right.getWidth() + 20, keeper90Right.getHeight() + 20, posKeeper); //add +20 because 45 degree tend to be clip too small
           painterGrass.simpleDraw(context);
+          painterBackground.simpleDraw2(context);
           drawGoalPost();
           painterGoalKeeper.draw2(context, keeper90Right.getCurrentImage(), posKeeper);
           painterBall.draw3(context, ball.getCurrentImage(), posBall);
@@ -233,6 +281,7 @@ function Animate() {
           posKeeper = box2d.getMapBodyPositionCanvas('goalKeeper', keeperRight.getWidth(), keeperRight.getHeight());
           painterGoalKeeper.clipRegionSpriteWH(context, keeperRight.getWidth(), keeperRight.getHeight() + 100, posKeeper); //some awardness add 20
           painterGrass.simpleDraw(context);
+          painterBackground.simpleDraw2(context);
           drawGoalPost();
           painterBall.draw3(context, ball.getCurrentImage(), posBall);
           painterGoalKeeper.draw2(context, keeperRight.getCurrentImage(), posKeeper);
@@ -293,6 +342,8 @@ function Animate() {
 
 function displayOutcome(outcome){
   if (outcome==1) {
+    
+    audioGoal.play();
     goal++;
     context.font = 'italic 25pt Calibri';
     context.clearRect(0,0,1000,40);
@@ -333,9 +384,9 @@ function drawGoalPost(){
   context.fillRect(40,200,750,25);
   context.stroke();
   context.fillStyle="#EEF1F6";
-  context.fillRect(40,200,25,250);
+  context.fillRect(40,200,25,300);
   context.stroke();
   context.fillStyle="#EEF1F6";
-  context.fillRect(765,200,25,250);
+  context.fillRect(765,200,25,300);
   context.stroke();
 }
